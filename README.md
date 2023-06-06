@@ -40,7 +40,7 @@ Request params:
 - None
 ```
 
-`$ curl -XPOST http://127.0.0.1:5500/api/v1/load`
+`$ curl -XGET http://127.0.0.1:5500/api/v1/load`
 
 #### Total experiments a user ran
 
@@ -52,7 +52,9 @@ Request params:
 - email: str
 ```
 
-`$ curl -XPOST http://127.0.0.1:5500/api/v1/get_total_experiments?user_id=1`
+`$ curl -XGET http://127.0.0.1:5500/api/v1/get_total_experiments?user_id=1`
+
+`$ curl -XGET http://127.0.0.1:5500/api/v1/get_total_experiments?email=carol@example.com`
 
 #### Average experiments amount per user
 
@@ -76,20 +78,22 @@ Request params:
 ```
 
 `$ curl -XGET http://127.0.0.1:5500/api/v1/get_most_commonly_used_compound?user_id=2`
+
+`$ curl -XGET http://127.0.0.1:5500/api/v1/get_most_commonly_used_compound?email=eve@example.com`
  
 ### Run API Tests
 
 From the root directory, run
 
-`# docker exec -it eikon_app python3 -m unittest test.test_services`
+`$ docker exec -it eikon_app python3 -m unittest test.test_apis`
 
-## Design
+### Design
 
 - I used Docker Compose to build both the Flask app and database as containers. This makes it so that whoever runs this app doesn't need to install PostgreSQL on theit machine and configure it. In real world situation, the DB most likely on a server and not a container. This means the run command for this assignment is not `docker run`.
 - I wrote some basic API tests for sanity checking. 
 
 
-### Caveats / Tech Debt
+#### Caveats / Tech Debt
 - Credentials are hard-coded and exposed. The secrets and passwords can be stored using `.env` files. 
 - I would also implement several configs for dev and production
 - A lot of common methods could be abstracted out to a `common.py` file. But given the scope of the assignment, I left them where they are.
