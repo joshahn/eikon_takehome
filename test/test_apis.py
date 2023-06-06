@@ -24,11 +24,11 @@ class TestApi(unittest.TestCase):
         "Compound C": 3
     }
 
-    # @classmethod
-    # def setUpClass(cls):
-    #    print('setUpClass: posting /load API call')
-    #    resp = requests.post("http://127.0.0.1:5500/api/v1/load")
-    #    sleep(5)
+    @classmethod
+    def setUpClass(cls):
+       resp = requests.post("http://127.0.0.1:5500/api/v1/load")
+       sleep(2)
+
 
     # HELPER FUNCTIONS
     def get_request(self, method, how, val):
@@ -40,6 +40,7 @@ class TestApi(unittest.TestCase):
             return requests.get(self.URL.format(method=method, val=value))
         else:
             return None
+
 
     # TEST GET TOTAL EXPERIMENT FOR USER
     @parameterized.expand([
@@ -70,7 +71,6 @@ class TestApi(unittest.TestCase):
         resp_json = resp.json()
         assert resp.status_code == error_code
 
-
     @parameterized.expand([
         ("alice@example.com", 2),
         ("dave@example.com", 1),
@@ -98,6 +98,7 @@ class TestApi(unittest.TestCase):
         resp_json = resp.json()
         assert resp.status_code == error_code
 
+
     # TEST GET AVERAGE EXPERIEMENT PER USER
     def test_handle_get_average_experiment_per_user(self):
         expected_avg = 1.1
@@ -105,8 +106,9 @@ class TestApi(unittest.TestCase):
                                             val=""))
         assert resp.status_code == 200
         resp_json = resp.json()
-        assert (resp_json["value"] == expected_avg, 
-            self.ASSERT_FAIL_MESSAGE_VALUE.format(e=expected_avg, a=resp_json["value"]))
+        assert resp_json["value"] == expected_avg, \
+            self.ASSERT_FAIL_MESSAGE_VALUE.format(e=expected_avg, a=resp_json["value"])
+
 
     # TEST GET MOST COMMON COMPOUND FOR USER
     @parameterized.expand([

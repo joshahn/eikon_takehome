@@ -1,3 +1,95 @@
+# Implementation of Take Home Challenge
+
+## Getting Started
+
+### Setting Up
+
+- Navigate to the root directory where `app.py` and `DOCKERFILE` are
+
+`$ cd eikon/`
+
+- Build the docker images
+
+`$ docker compose build`
+
+- Bring up the docker containers (in background)
+
+`$ docker compose up -d`
+
+#### Teardown
+
+- Stopping containers
+
+`$ docker compose down`
+
+### Make API Calls
+
+#### Trigger ETL
+
+```
+POST /api/v1/load
+
+Request params: 
+- None
+```
+
+`$ curl -XPOST http://127.0.0.1:5500/api/v1/load`
+
+#### Total experiments a user ran
+
+```
+GET /api/v1/get_total_experiments
+
+Request params: 
+- user_id: int
+- email: str
+```
+
+`$ curl -XPOST http://127.0.0.1:5500/api/v1/get_total_experiments?user_id=1`
+
+#### Average experiments amount per user
+
+```
+GET /api/v1/get_total_experiments
+
+Request params: 
+- None
+```
+
+`$ curl -XGET http://127.0.0.1:5500/api/v1/get_average_experiment_per_user`
+
+#### User's most commonly experimented compound.
+
+```
+GET /api/v1/get_most_commonly_used_compound
+
+Request params: 
+- user_id: int
+- email: str
+```
+
+`$ curl -XGET http://127.0.0.1:5500/api/v1/get_most_commonly_used_compound?user_id=2`
+ 
+### Run API Tests
+
+From the root directory, run
+
+`# docker exec -it eikon_app python3 -m unittest test.test_services`
+
+## Design
+
+- I used Docker Compose to build both the Flask app and database as containers. This makes it so that whoever runs this app doesn't need to install PostgreSQL on theit machine and configure it. In real world situation, the DB most likely on a server and not a container. This means the run command for this assignment is not `docker run`.
+- I wrote some basic API tests for sanity checking. 
+
+
+### Caveats / Tech Debt
+- Credentials are hard-coded and exposed. The secrets and passwords can be stored using `.env` files. 
+- I would also implement several configs for dev and production
+- A lot of common methods could be abstracted out to a `common.py` file. But given the scope of the assignment, I left them where they are.
+- Likewise, constants could also be abstracted to a `constants.py` file.
+- For more official web service handling, could add Nginx to handle connections
+
+
 # Backend Engineering Take-Home Challenge
 
 ### Introduction
@@ -19,44 +111,3 @@ In this challenge, you will be tasked with creating a simple ETL pipeline that c
  - Upload the processed data into a **postgres** table.
 
 4.  The application should be built using Python and any tooling you like for coordinating the workflow and fronting the api server
-
-### Data
-You will find three CSV files in the `data`  directory:
-
-- `users.csv`: Contains user data with the following columns: `user_id`, `name`, `email`,`signup_date`.
-
-- `user_experiments.csv`: Contains experiment data with the following columns: `experiment_id`, `user_id`, `experiment_compound_ids`, `experiment_run_time`. The `experiment_compound_ids` column contains a semicolon-separated list of compound IDs.
-
-
-- `compounds.csv`: Contains compound data with the following columns: `compound_id`, `compound_name`, `compound_structure`.
-
-
-## Feature Derivation
-From the provided CSV files, derive the following features:
-
-1. Total experiments a user ran.
-2. Average experiments amount per user.
-3. User's most commonly experimented compound.
-
-## Deliverables
-Please provide the following in a GITHUB REPOSITORY.
-
-1. A Dockerfile that sets up the environment for your application.
-2. A requirements.txt file with all the Python dependencies.
-3. A Python script that sets up the API and the ETL process.
-4. A brief README explaining how to build and run your application, and how to trigger the ETL process.
-
-
-Please also provide a script that builds, and runs the docker container. 
-You should also provide a script that scaffolds how a user can run the ETL process. This can be `curl` or something else.
-Finally, provide a script that queries the database and showcases that it has been populated with the desired features.
-
-
-## Evaluation
-Your solution will be evaluated on the following criteria:
-
-Code quality and organization.
-Proper use of Python and Docker.
-Successful execution of the ETL process.
-Accuracy of the derived features.
-
