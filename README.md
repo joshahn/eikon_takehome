@@ -91,7 +91,7 @@ From the root directory, run
 
 - I used Docker Compose to build both the Flask app and database as containers. This makes it so that whoever runs this app doesn't need to install PostgreSQL on theit machine and configure it. In real world situation, the DB most likely on a server and not a container. This means the run command for this assignment is not `docker run`.
 - I wrote some basic API tests for sanity checking. 
-
+- For the most common used compound, I wasn't sure how to handle if there are multiple compounds for a user. I had fun and chose to return a random item from the list.
 
 #### Caveats / Tech Debt
 - Credentials are hard-coded and exposed. The secrets and passwords can be stored using `.env` files. 
@@ -101,7 +101,7 @@ From the root directory, run
 - For more official web service handling, could add Nginx to handle connections
 
 
-# Backend Engineering Take-Home Challenge
+## Backend Engineering Take-Home Challenge
 
 ### Introduction
 In this challenge, you will be tasked with creating a simple ETL pipeline that can be triggered via an API call. You will be provided with a set of CSV files that you will need to process, derive some features from, and then upload into a database table.
