@@ -4,12 +4,12 @@ import csv
 import json
 import random
 
-from db.database import check_exists, create_table, fetch_all, fetch_one, write_to
-from models.Compound import Compound
-from models.User import User
-from models.UserExperiment import UserExperiment
+from src.db.database import check_exists, create_table, fetch_all, fetch_one, write_to
+from src.models.Compound import Compound
+from src.models.User import User
+from src.models.UserExperiment import UserExperiment
 
-DATA_DIR = "data"
+DATA_DIR = "src/data"
 USERS_CSV = "{}/users.csv".format(DATA_DIR)
 COMPOUNDS_CSV = "{}/compounds.csv".format(DATA_DIR)
 USER_EXPERIMENT_CSV = "{}/user_experiments.csv".format(DATA_DIR)
@@ -51,11 +51,14 @@ def load(objects, tablename):
         return False
 
 def get_total_experiments(user_id):
-    query = "SELECT * FROM user_experiments WHERE user_id = {id}".format(id=user_id)
-    response = fetch_all(query)
-    num_exp = len(response)
-    print("DEBUG: User {} ran {} experiments".format(user_id, num_exp))
-    return num_exp
+    if user_id_exists(user_id) > 0:
+        query = "SELECT * FROM user_experiments WHERE user_id = {id}".format(id=user_id)
+        response = fetch_all(query)
+        num_exp = len(response)
+        print("DEBUG: User {} ran {} experiments".format(user_id, num_exp))
+        return num_exp
+    else:
+        return -1
 
 def get_average_experiment_per_user():
     query = "SELECT user_id FROM users"
@@ -100,7 +103,7 @@ def get_most_commonly_used_compound(user_id):
         return None
 
 def user_id_exists(user_id):
-    query = "SELECT user_id FROM users WHERE id = {i}".format(i=user_id)
+    query = "SELECT user_id FROM users WHERE user_id = {i}".format(i=user_id)
     ids = fetch_all(query)
     id_len = len(ids)
     if id_len < 1:

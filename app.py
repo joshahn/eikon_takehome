@@ -2,58 +2,65 @@
 
 from flask import Flask, jsonify, request
 
-from db.database import initialize
-from services import (get_user_id_from_email,
-                      get_total_experiments,
-                      get_average_experiment_per_user,
-                      get_most_commonly_used_compound,
-                      run_etl
-                     )
+from src.db.database import initialize
+from src.services import (get_user_id_from_email, 
+                          get_total_experiments,
+                          get_average_experiment_per_user,
+                          get_most_commonly_used_compound,
+                          run_etl
+                         )
 
 app = Flask(__name__)
 
 @app.route('/api/v1/get_total_experiments', methods=['GET'])
 def handle_get_total_experiments():
     user_id, message, status_code = extract_user_id(request.args)
+    value = None
     if user_id > 0:
         total_exp = get_total_experiments(user_id)
         if total_exp >= 0:
             message = "Total experiments for user: {} is {}".format(user_id, total_exp)
+            value = total_exp
             status_code = 200
         else:
             message: "Experiments not found for user ID: {}".format(user_id)
             status_code = 404
     app.logger.debug("{}: {}".format(status_code, message))
-    return jsonify({"message": message}, status_code)
+    return {"message": message, "value": value}, status_code
 
 
 @app.route('/api/v1/get_average_experiment_per_user', methods=['GET'])
 def handle_get_average_experiment_per_user():
     val = get_average_experiment_per_user()
     if val:
-        resp = {"message": "Average experiment count per user is: {}".format(val)}, 200
+        resp = {
+            "message": "Average experiment count per user is: {}".format(val),
+            "value": val,
+        }, 200
     else:
-        resp = {"message": "No Content: No experiments ran "}, 204
+        resp = {"message": "No Content: No experiments ran"}, 204
     app.logger.debug(resp)
-    return jsonify(resp)
+    return resp
     
 @app.route('/api/v1/get_most_commonly_used_compound', methods=['GET'])
 def handle_get_most_commonly_used_compound():
     user_id, message, status_code = extract_user_id(request.args)
+    value = None
     if user_id > 0:
         most_common = get_most_commonly_used_compound(user_id)
         if most_common:
             message = "Most commonly used compound is {} for user {}".format(most_common, user_id)
+            value = most_common
             status_code = 200
         else:
             message: "Experiments with compounds not found for user ID: {}".format(user_id)
             status_code = 404
     app.logger.debug("{}: {}".format(status_code, message))
-    return jsonify({"message": message}, status_code)
+    return {"message": message, "value": value}, status_code
 
 
 # Your API that can be called to trigger your ETL process
-@app.route('/api/load', methods=['POST'])
+@app.route('/api/v1/load', methods=['POST'])
 def trigger_etl():
     success = run_etl()
     if success:
@@ -61,8 +68,11 @@ def trigger_etl():
     else:
         resp = {"message": "There was error with the ETL process"}, 500 
     app.logger.debug(resp)
-    return jsonify(resp)
+    return resp
 
+@app.errorhandler(500)
+def server_error(error):
+    return {"message": "There is an internal server error"}, 500
 
 def extract_user_id(args):
     user_id_val = 0
@@ -83,10 +93,10 @@ def extract_user_id(args):
         user_id_val = get_user_id_from_email(email)
         if user_id_val < 0:
             message = "ERROR: Multiple IDs for {}".format(email)
-            status_code = 400
+            status_code = 409
         elif user_id_val == 0:
             message = "ERROR: No ID found for {}".format(email)
-            status_code = 400
+            status_code = 404
         else:
             message = "DEBUG: Valid ID: {}".format(user_id_val)
             status_code = 200
