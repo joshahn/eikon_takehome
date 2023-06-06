@@ -4,9 +4,16 @@
 
 ### Setting Up
 
+#### Prereqs:
+
+- [Docker](https://www.docker.com/) installed
+- `curl` or equivalent (e.g. Postman) available
+
+#### Building the App
+
 - Navigate to the root directory where `app.py` and `DOCKERFILE` are
 
-`$ cd eikon/`
+`$ cd eikon_takehome/`
 
 - Build the docker images
 
